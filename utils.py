@@ -14,8 +14,3 @@ def check_logfiles(logfiles: list[str]) -> bool:
             return False
 
     return True
-
-
-if __name__ == "__main__":
-    tmd_path = Path(__file__).resolve().parent / "log1.log"
-    tmd_path.write_text("123")

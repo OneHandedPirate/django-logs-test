@@ -1,17 +1,13 @@
 import pytest
-import csv
-from pathlib import Path
-from collections import defaultdict, Counter
+from collections import defaultdict
 from unittest.mock import (
     patch,
     mock_open,
     MagicMock,
-    call,
-)  # Use unittest.mock or pytest-mock
+)
 
-# Make sure service and utils are importable
 from services.handler_service import HandlerReportService
-from utils import int_defaultdict  # Import for comparison
+from utils import int_defaultdict
 
 
 @pytest.fixture
@@ -165,35 +161,6 @@ def test_save_report_to_csv(mock_csv_writer, mock_path_open, service):
     mock_writer_instance.writerow.assert_called_once_with(expected_headers)
     mock_writer_instance.writerows.assert_called_once_with(expected_rows)
 
-
-# @patch("services.handler_service.ProcessPoolExecutor")
-# @patch("services.handler_service.HandlerReportService._merge_results")
-# @patch("services.handler_service.HandlerReportService._save_report_to_csv")
-# def test_execute(mock_save, mock_merge, mock_executor_cls, service, mocker):
-#     mock_executor_instance = MagicMock()
-#     mock_executor_cls.return_value.__enter__.return_value = mock_executor_instance
-#
-#     processed_results = [
-#         {"/api/users": {"INFO": 5}},
-#         {"/api/users": {"ERROR": 1}, "/api/products": {"INFO": 2}},
-#     ]
-#     mock_executor_instance.map.return_value = processed_results
-#
-#     merged_data = defaultdict(int_defaultdict, {"/api/users": {"INFO": 5, "ERROR": 1}, "/api/products": {"INFO": 2}})
-#     mock_merge.return_value = merged_data
-#
-#     files = ["file1.log", "file2.log"]
-#     service.execute(*files)
-#
-#     mock_executor_cls.assert_called_once()
-#     for file in files:
-#         mock_executor_instance.map.assert_called_once_with(service._process_file, file)
-#
-#     mock_merge.assert_called_once_with(*processed_results)
-#
-#     mock_save.assert_called_once_with(merged_data)
-
-
 @patch("services.handler_service.ProcessPoolExecutor")
 @patch("services.handler_service.HandlerReportService._merge_results")
 @patch("services.handler_service.HandlerReportService._save_report_to_csv")
@@ -214,20 +181,16 @@ def test_execute(mock_save, mock_merge, mock_executor_cls, service):
     )
     mock_merge.return_value = merged_data
 
-    # Файлы
     files = ["file1.log", "file2.log"]
 
-    # Вызов метода
     service.execute(*files)
 
-    # Проверки
     mock_executor_cls.assert_called_once()
     mock_executor_instance.map.assert_called_once()
 
-    # Проверяем аргументы вызова map
     called_args = mock_executor_instance.map.call_args.args
     assert called_args[0] == service._process_file
-    assert list(called_args[1]) == files  # <-- ВАЖНО: преобразуем в list для сравнения
+    assert list(called_args[1]) == files
 
     mock_merge.assert_called_once_with(*processed_results)
     mock_save.assert_called_once_with(merged_data)
